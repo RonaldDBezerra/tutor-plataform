@@ -19,12 +19,18 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
-tutor_status = sa.Enum("ACTIVE", "INACTIVE", name="tutor_status")
-provider_type = sa.Enum(
+tutor_status = postgresql.ENUM(
+    "ACTIVE",
+    "INACTIVE",
+    name="tutor_status",
+    create_type=False,
+)
+provider_type = postgresql.ENUM(
     "HTTP_TEXT",
     "JSON",
     "TAVILY_EXTRACT",
     name="provider_type",
+    create_type=False,
 )
 
 
