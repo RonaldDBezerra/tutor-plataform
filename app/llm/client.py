@@ -17,19 +17,23 @@ class LLMClient:
         model_name: str | None = None,
         temperature: float | None = None,
     ) -> None:
-        if not settings.OPENAI_API_KEY:
-            raise RuntimeError("OPENAI_API_KEY is not configured")
+        self._model_name = model_name or settings.LLM_MODEL
+        self._temperature = temperature if temperature is not None else settings.LLM_TEMPERATURE
 
-        self._model = ChatOpenAI(
-            model=model_name or settings.LLM_MODEL,
-            temperature=temperature if temperature is not None else settings.LLM_TEMPERATURE,
-            api_key=settings.OPENAI_API_KEY,
-        )
+    def _build_model(self) -> ChatOpenAI:
+        model_kwargs: dict[str, object] = {
+            "model": self._model_name,
+            "temperature": self._temperature,
+        }
+        if settings.OPENAI_API_KEY:
+            model_kwargs["api_key"] = settings.OPENAI_API_KEY
+
+        return ChatOpenAI(**model_kwargs)
 
     async def generate(self, prompt: str) -> str:
         """Generate a text response for a structured prompt."""
 
-        response = await self._model.ainvoke([HumanMessage(content=prompt)])
+        response = await self._build_model().ainvoke([HumanMessage(content=prompt)])
         content = response.content
 
         if isinstance(content, str):
