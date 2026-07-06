@@ -14,6 +14,9 @@ from app.knowledge.models import KnowledgeResult
 class JsonProvider(KnowledgeProvider):
     """Fetch JSON content and normalize it into plain text."""
 
+    async def validate(self, source: str, configuration: dict | None = None) -> None:
+        await self.get_context(source=source, configuration=configuration)
+
     async def get_context(
         self,
         source: str,

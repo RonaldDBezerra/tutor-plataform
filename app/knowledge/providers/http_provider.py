@@ -14,6 +14,9 @@ from app.knowledge.models import KnowledgeResult
 class HttpProvider(KnowledgeProvider):
     """Fetch plain text content from a public URL."""
 
+    async def validate(self, source: str, configuration: dict | None = None) -> None:
+        await self.get_context(source=source, configuration=configuration)
+
     async def get_context(
         self,
         source: str,
