@@ -4,15 +4,21 @@ from __future__ import annotations
 
 import uuid
 
+from app.core.exceptions import ConversationNotFoundError, TutorNotFoundError
 from app.db.uow import UnitOfWork
 from app.models.conversation import Conversation
 from app.models.enums import MessageRole
 from app.models.message import Message
+from app.models.tutor import Tutor
 
 
 class ChatService:
     def __init__(self, uow: UnitOfWork) -> None:
         self.uow = uow
+
+    async def get_tutor(self, tutor_id: uuid.UUID) -> Tutor | None:
+        async with self.uow:
+            return await self.uow.tutors.get_by_id(tutor_id)
 
     async def get_or_create_conversation(
         self,
@@ -23,7 +29,7 @@ class ChatService:
         async with self.uow:
             tutor = await self.uow.tutors.get_by_id(tutor_id)
             if tutor is None:
-                raise ValueError(f"Tutor not found: {tutor_id}")
+                raise TutorNotFoundError(tutor_id)
 
             conversation = await self.uow.conversations.get_by_tutor_and_session(
                 tutor_id=tutor_id,
@@ -66,6 +72,10 @@ class ChatService:
             messages = await self.uow.messages.list_by_conversation(conversation_id)
             return list(messages)
 
+    async def get_conversation(self, conversation_id: uuid.UUID) -> Conversation | None:
+        async with self.uow:
+            return await self.uow.conversations.get_by_id(conversation_id)
+
     async def _save_message(
         self,
         *,
@@ -76,7 +86,7 @@ class ChatService:
         async with self.uow:
             conversation = await self.uow.conversations.get_by_id(conversation_id)
             if conversation is None:
-                raise ValueError(f"Conversation not found: {conversation_id}")
+                raise ConversationNotFoundError(conversation_id)
 
             message = Message(
                 conversation_id=conversation_id,

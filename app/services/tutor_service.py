@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import uuid
 
+from app.core.exceptions import TutorNotFoundError
 from app.db.uow import UnitOfWork
 from app.models.enums import TutorStatus
 from app.models.tutor import Tutor
@@ -53,7 +54,7 @@ class TutorService:
         async with self.uow:
             tutor = await self.uow.tutors.get_by_id(tutor_id)
             if tutor is None:
-                return None
+                raise TutorNotFoundError(tutor_id)
 
             if name is not None:
                 tutor.name = name
@@ -72,8 +73,11 @@ class TutorService:
         async with self.uow:
             tutor = await self.uow.tutors.get_by_id(tutor_id)
             if tutor is None:
-                return None
+                raise TutorNotFoundError(tutor_id)
 
             deactivated_tutor = await self.uow.tutors.deactivate(tutor)
             await self.uow.commit()
             return deactivated_tutor
+
+    async def delete(self, tutor_id: uuid.UUID) -> Tutor | None:
+        return await self.deactivate(tutor_id)
