@@ -12,3 +12,9 @@ class ProviderType(str, Enum):
     HTTP_TEXT = "HTTP_TEXT"
     JSON = "JSON"
     TAVILY_EXTRACT = "TAVILY_EXTRACT"
+
+
+class MessageRole(str, Enum):
+    USER = "USER"
+    ASSISTANT = "ASSISTANT"
+    SYSTEM = "SYSTEM"
