@@ -11,6 +11,14 @@ class KnowledgeProvider(ABC):
     """Common async contract implemented by all knowledge providers."""
 
     @abstractmethod
+    async def validate(
+        self,
+        source: str,
+        configuration: dict | None = None,
+    ) -> None:
+        """Validate that the source can be processed by the provider."""
+
+    @abstractmethod
     async def get_context(
         self,
         source: str,
