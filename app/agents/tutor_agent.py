@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from app.knowledge.models import KnowledgeResult
+from app.models.message import Message
 from app.models.tutor import Tutor
 from app.prompts.tutor_prompt import build_tutor_prompt
 from app.tools.knowledge_tool import KnowledgeTool
@@ -24,13 +25,14 @@ class TutorAgent:
         self,
         tutor: Tutor,
         question: str,
+        history: list[Message] | None = None,
     ) -> str:
         try:
             contexts: list[KnowledgeResult] = await self.knowledge_tool.get_contexts(
                 list(tutor.knowledge_sources),
                 question=question,
             )
-            prompt = build_tutor_prompt(tutor, contexts, question)
+            prompt = build_tutor_prompt(tutor, contexts, question, history=history)
             return await self.llm_client.generate(prompt)
         except Exception:
             logger.exception("TutorAgent failed for tutor_id=%s", tutor.id)
