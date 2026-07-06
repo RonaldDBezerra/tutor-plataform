@@ -43,3 +43,9 @@ class Tutor(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+
+    @property
+    def instructions(self) -> str:
+        """Compatibility alias used by the agent prompt builder."""
+
+        return self.system_prompt
