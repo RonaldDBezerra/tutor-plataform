@@ -5,10 +5,15 @@ This is the single source of truth for runtime configuration values.
 No business logic should live here — only settings declaration and loading.
 """
 
+from pathlib import Path
 from functools import lru_cache
 
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 
 class Settings(BaseSettings):
@@ -36,6 +41,19 @@ class Settings(BaseSettings):
         ...,
         description="Async PostgreSQL connection string (postgresql+asyncpg://...)",
     )
+
+    # --- AI / LangChain ---
+    OPENAI_API_KEY: str | None = Field(default=None, description="OpenAI API key used by LangChain")
+    LLM_MODEL: str = Field(default="gpt-5.4-mini", description="Default LLM model name")
+    LLM_TEMPERATURE: float = Field(default=0.0, description="Default model temperature")
+    LANGSMITH_TRACING: bool = Field(default=False, description="Enable LangSmith tracing")
+    LANGSMITH_ENDPOINT: str = Field(
+        default="https://api.smith.langchain.com",
+        description="LangSmith API endpoint",
+    )
+    LANGSMITH_API_KEY: str | None = Field(default=None, description="LangSmith API key")
+    LANGSMITH_PROJECT: str | None = Field(default=None, description="LangSmith project name")
+
     DB_ECHO: bool = Field(default=False, description="Log all SQL statements emitted by SQLAlchemy")
     DB_POOL_SIZE: int = Field(default=5, description="Base size of the async connection pool")
     DB_MAX_OVERFLOW: int = Field(default=10, description="Extra connections allowed beyond DB_POOL_SIZE")
