@@ -15,10 +15,11 @@ Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL
 - [10. Instalação](#10-instalação)
 - [11. Variáveis de ambiente](#11-variáveis-de-ambiente)
 - [12. Executando os testes](#12-executando-os-testes)
-- [13. Endpoints](#13-endpoints)
-- [14. Decisões arquiteturais](#14-decisões-arquiteturais)
-- [15. Melhorias futuras](#15-melhorias-futuras)
-- [16. Licença](#16-licença)
+- [13. Ruff e qualidade de código](#13-ruff-e-qualidade-de-código)
+- [14. Endpoints](#14-endpoints)
+- [15. Decisões arquiteturais](#15-decisões-arquiteturais)
+- [16. Melhorias futuras](#16-melhorias-futuras)
+- [17. Licença](#17-licença)
 
 ---
 
@@ -339,7 +340,33 @@ Não há configuração de cobertura dedicada no repositório atual.
 
 ---
 
-## 13. Endpoints
+## 13. Ruff e qualidade de código
+
+O projeto usa Ruff para lint e formatação. A configuração fica em [pyproject.toml](/home/ronalddamasio/tutor-plataform/pyproject.toml) e já cobre os diretórios `app`, `alembic` e `tests`.
+
+### Como usar
+
+Após rodar `uv sync`, o Ruff já fica disponível no ambiente do projeto. Os comandos principais são:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+uv run ruff format .
+uv run ruff check . --fix
+```
+
+### Onde ele se encaixa no fluxo
+
+- `uv run ruff check .` valida imports, regras de estilo e problemas estáticos antes do envio de mudanças.
+- `uv run ruff format --check .` confirma que a base está formatada de forma consistente.
+- `uv run ruff format .` aplica a formatação automaticamente quando necessário.
+- `uv run ruff check . --fix` corrige automaticamente parte dos problemas simples de lint.
+
+Na prática, o Ruff deve ser executado antes dos testes e antes de abrir PRs, para manter o backend consistente e pronto para revisão.
+
+---
+
+## 14. Endpoints
 
 ### Tutor
 
@@ -379,7 +406,7 @@ O tutor expõe `embed_token` como identificador público da integração embarca
 
 ---
 
-## 14. Decisões arquiteturais
+## 15. Decisões arquiteturais
 
 ### Repository Pattern
 
@@ -427,7 +454,7 @@ Sem quebrar a abstração atual de providers.
 
 ---
 
-## 15. Melhorias futuras
+## 16. Melhorias futuras
 
 Algumas evoluções naturais para próximas sprints:
 
@@ -444,7 +471,7 @@ Essas funcionalidades não estão implementadas no estado atual do projeto.
 
 ---
 
-## 16. Licença
+## 17. Licença
 
 Nenhuma licença foi adicionada ao repositório atual.
 
