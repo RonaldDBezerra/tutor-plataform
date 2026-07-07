@@ -5,11 +5,11 @@ from __future__ import annotations
 import logging
 
 from app.knowledge.models import KnowledgeResult
+from app.llm.client import LLMClient
 from app.models.message import Message
 from app.models.tutor import Tutor
 from app.prompts.tutor_prompt import build_tutor_prompt
 from app.tools.knowledge_tool import KnowledgeTool
-from app.llm.client import LLMClient
 
 logger = logging.getLogger(__name__)
 
