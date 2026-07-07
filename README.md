@@ -2,6 +2,17 @@
 
 Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL, LangChain, LangSmith e integração com Tavily para extração de conteúdo web.
 
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-1E6E8C?style=for-the-badge&logo=sqlalchemy&logoColor=white)](https://www.sqlalchemy.org/)
+[![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge)](https://python.langchain.com/)
+[![LangSmith](https://img.shields.io/badge/LangSmith-0B0F19?style=for-the-badge)](https://docs.smith.langchain.com/)
+[![Alembic](https://img.shields.io/badge/Alembic-1F2937?style=for-the-badge)](https://alembic.sqlalchemy.org/)
+[![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org/)
+[![Ruff](https://img.shields.io/badge/Ruff-2C2F33?style=for-the-badge)](https://docs.astral.sh/ruff/)
+[![Uvicorn](https://img.shields.io/badge/Uvicorn-2C2F33?style=for-the-badge)](https://www.uvicorn.org/)
+
 ## Sumário
 - [1. Título do projeto](#1-título-do-projeto)
 - [2. Demonstração](#2-demonstração)
@@ -12,14 +23,17 @@ Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL
 - [7. Fluxo de funcionamento](#7-fluxo-de-funcionamento)
 - [8. Knowledge Providers](#8-knowledge-providers)
 - [9. Persistência](#9-persistência)
-- [10. Instalação](#10-instalação)
-- [11. Variáveis de ambiente](#11-variáveis-de-ambiente)
-- [12. Executando os testes](#12-executando-os-testes)
-- [13. Ruff e qualidade de código](#13-ruff-e-qualidade-de-código)
-- [14. Endpoints](#14-endpoints)
-- [15. Decisões arquiteturais](#15-decisões-arquiteturais)
-- [16. Melhorias futuras](#16-melhorias-futuras)
-- [17. Licença](#17-licença)
+- [10. Observabilidade](#10-observabilidade)
+- [11. Segurança](#11-segurança)
+- [12. Instalação](#12-instalação)
+- [13. Variáveis de ambiente](#13-variáveis-de-ambiente)
+- [14. Executando os testes](#14-executando-os-testes)
+- [15. Ruff e qualidade de código](#15-ruff-e-qualidade-de-código)
+- [16. Endpoints](#16-endpoints)
+- [17. Integração com o Frontend](#17-integração-com-o-frontend)
+- [18. Decisões arquiteturais](#18-decisões-arquiteturais)
+- [19. Melhorias futuras](#19-melhorias-futuras)
+- [20. Autor e créditos](#20-autor-e-créditos)
 
 ---
 
@@ -31,9 +45,10 @@ Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL
 
 ## 2. Demonstração
 
-- URL da aplicação (Render): https://tutor-plataform.onrender.com
-- URL da documentação Swagger: disponível localmente em `/docs`
-- GIF ou imagem da aplicação: não incluído
+- URL da API em produção: não há URL pública documentada neste repositório
+- URL da documentação Swagger: `http://127.0.0.1:8000/docs` em ambiente local; em produção, a rota padrão permanece a mesma
+- URL do OpenAPI: `http://127.0.0.1:8000/openapi.json` em ambiente local; em produção, a rota padrão permanece a mesma
+- Frontend publicado: não há frontend publicado referenciado neste repositório
 
 > Observação: o repositório atual não contém Dockerfile nem docker-compose. A execução local é feita diretamente com UV.
 
@@ -157,6 +172,18 @@ tests/
 
 Quando um usuário envia uma pergunta para o chat, o fluxo acontece assim:
 
+```mermaid
+flowchart TD
+  SP[SYSTEM PROMPT do tutor] --> PB[Prompt Builder]
+  H[HISTORY da conversa] --> PB
+  C[CONTEXT recuperado pelo KnowledgeTool] --> PB
+  U[USER QUESTION] --> PB
+  PB --> L[LLMClient / ChatOpenAI]
+  L --> A[ANSWER]
+```
+
+O `SYSTEM PROMPT` vem de `tutor.system_prompt` por meio de `tutor.instructions`. O `HISTORY` é composto pelas mensagens já persistidas na conversa. O `CONTEXT` reúne os resultados retornados pelos providers de conhecimento. A `USER QUESTION` é a pergunta atual enviada pelo cliente. O `LLMClient` recebe o prompt final e retorna a `ANSWER`, que depois é persistida como mensagem do assistente.
+
 1. O cliente chama `POST /api/v1/chat` ou `POST /api/v1/embed/chat`.
 2. A rota injeta `ChatService` e `TutorAgent` via dependências FastAPI.
 3. `ChatService` carrega o tutor e cria ou reutiliza a `Conversation` com base em `conversation_id`.
@@ -176,6 +203,17 @@ Quando um usuário envia uma pergunta para o chat, o fluxo acontece assim:
 ## 8. Knowledge Providers
 
 A camada de conhecimento é resolvida por factory e providers especializados.
+
+```mermaid
+flowchart TD
+  KS[Knowledge Source] --> KF[KnowledgeProviderFactory]
+  KF --> P[Provider concreto]
+  P --> KR[KnowledgeResult]
+  KR --> PB[Prompt Builder]
+  PB --> LLM[LLM]
+```
+
+Essa arquitetura isola a lógica de validação e extração em implementações específicas. Para adicionar um novo provider, basta implementar o contrato da camada de conhecimento e registrá-lo na factory, sem alterar o restante do fluxo de chat.
 
 ### HttpProvider
 
@@ -248,7 +286,33 @@ O histórico é armazenado no banco e carregado pelo `ChatService` antes da gera
 
 ---
 
-## 10. Instalação
+## 10. Observabilidade
+
+A observabilidade existente hoje é composta por tracing do LangSmith e logs da própria aplicação.
+
+- O fluxo de chat está instrumentado com `@traceable(name="chat_flow")` em `app/api/v1/chat.py`, o que permite acompanhar a execução do caso de uso no LangSmith quando `LANGSMITH_TRACING` está habilitado.
+- O tracing cobre o fluxo de chat; a instrumentação não está espalhada para todos os providers ou services de forma separada.
+- A aplicação registra erros com `logging.exception` em pontos críticos como `TutorAgent`, `KnowledgeTool` e `TavilyProvider`.
+- `DB_ECHO` permite expor SQL emitido pelo SQLAlchemy quando a investigação local exigir esse nível de detalhe.
+- Não há configuração de logs estruturados, métricas ou dashboards no repositório atual.
+
+---
+
+## 11. Segurança
+
+As proteções implementadas hoje são simples, explícitas e concentradas na camada HTTP e na validação de fontes.
+
+- `ADMIN_API_KEY` é a chave configurada no ambiente para autorizar operações administrativas de escrita.
+- O header esperado é `X-ADMIN-KEY`, validado por `app.core.security.require_admin_api_key`.
+- Os endpoints administrativos de criação, atualização e exclusão usam um router protegido por dependência FastAPI, então qualquer requisição sem chave válida recebe `401 Unauthorized`.
+- Os endpoints públicos de listagem, chat e embed não exigem `X-ADMIN-KEY`.
+- O campo `embed_token` é gerado automaticamente na criação do tutor como um UUID hexadecimal de 32 caracteres, possui índice e unicidade, e não é aceito em requests de escrita.
+- O `embed_token` serve como identificador público para o fluxo embarcado em `/api/v1/embed/chat`, evitando expor `tutor_id` no frontend.
+- As `Knowledge Sources` são validadas antes da persistência: na criação e na atualização, o provider correspondente tenta processar a URL e rejeita entradas inválidas antes do commit.
+
+---
+
+## 12. Instalação
 
 ### 1. Clonar o repositório
 
@@ -276,7 +340,7 @@ cp .env.example .env
 ### 4. Executar migrations
 
 ```bash
-uv run python -m alembic upgrade head
+uv run alembic upgrade head
 ```
 
 ### 5. Subir a aplicação
@@ -289,9 +353,11 @@ A aplicação fica disponível em `http://127.0.0.1:8000`.
 
 A documentação Swagger fica em `http://127.0.0.1:8000/docs`.
 
+O OpenAPI fica em `http://127.0.0.1:8000/openapi.json`.
+
 ---
 
-## 11. Variáveis de ambiente
+## 13. Variáveis de ambiente
 
 | Variável | Finalidade | Exemplo |
 |---|---|---|
@@ -306,7 +372,7 @@ A documentação Swagger fica em `http://127.0.0.1:8000/docs`.
 | `TAVILY_API_KEY` | Chave obrigatória para o `TavilyProvider` | `tvly-...` |
 | `TAVILY_API_BASE_URL` | Override opcional do endpoint Tavily | `https://api.tavily.com` |
 | `TAVILY_TIMEOUT_SECONDS` | Timeout aplicado às operações Tavily | `30` |
-| `LANGSMITH_TRACING` | Ativa tracing do LangSmith | `true` |
+| `LANGSMITH_TRACING` | Ativa tracing do fluxo de chat no LangSmith | `true` |
 | `LANGSMITH_ENDPOINT` | Endpoint do LangSmith | `https://api.smith.langchain.com` |
 | `LANGSMITH_API_KEY` | Chave do LangSmith | `lsv2_...` |
 | `LANGSMITH_PROJECT` | Nome do projeto no LangSmith | `Project` |
@@ -320,18 +386,18 @@ A documentação Swagger fica em `http://127.0.0.1:8000/docs`.
 
 ---
 
-## 12. Executando os testes
+## 14. Executando os testes
 
 ### Suíte completa
 
 ```bash
-uv run pytest -q
+uv run pytest
 ```
 
 ### Testes de API e integração
 
 ```bash
-uv run pytest -q tests/test_admin_api.py tests/test_chat_api.py tests/test_knowledge_validation.py
+uv run pytest tests/test_admin_api.py tests/test_chat_api.py tests/test_knowledge_validation.py
 ```
 
 ### Cobertura
@@ -340,9 +406,9 @@ Não há configuração de cobertura dedicada no repositório atual.
 
 ---
 
-## 13. Ruff e qualidade de código
+## 15. Ruff e qualidade de código
 
-O projeto usa Ruff para lint e formatação. A configuração fica em [pyproject.toml](/home/ronalddamasio/tutor-plataform/pyproject.toml) e já cobre os diretórios `app`, `alembic` e `tests`.
+O projeto usa Ruff para lint e formatação. A configuração fica em [pyproject.toml](pyproject.toml) e já cobre os diretórios `app`, `alembic` e `tests`.
 
 ### Como usar
 
@@ -366,7 +432,7 @@ Na prática, o Ruff deve ser executado antes dos testes e antes de abrir PRs, pa
 
 ---
 
-## 14. Endpoints
+## 16. Endpoints
 
 ### Tutor
 
@@ -406,7 +472,19 @@ O tutor expõe `embed_token` como identificador público da integração embarca
 
 ---
 
-## 15. Decisões arquiteturais
+## 17. Integração com o Frontend
+
+A integração com o frontend é feita via HTTP em uma arquitetura REST simples, sem acoplamento direto à implementação da interface.
+
+- O frontend consome os endpoints da API através de requisições HTTP padrão.
+- A documentação OpenAPI em `/openapi.json` funciona como contrato de referência para desenvolvimento e integração.
+- A interface Swagger em `/docs` facilita a validação manual dos contratos e dos payloads.
+- O fluxo embarcado usa `embed_token` para consumir a API sem expor `tutor_id` ao cliente.
+- Não há frontend publicado documentado neste repositório; se existir uma implantação externa, ela deve apontar para esta API usando os mesmos contratos descritos pela OpenAPI.
+
+---
+
+## 18. Decisões arquiteturais
 
 ### Repository Pattern
 
@@ -454,7 +532,7 @@ Sem quebrar a abstração atual de providers.
 
 ---
 
-## 16. Melhorias futuras
+## 19. Melhorias futuras
 
 Algumas evoluções naturais para próximas sprints:
 
@@ -462,7 +540,6 @@ Algumas evoluções naturais para próximas sprints:
 - Memória de longo prazo
 - LangGraph para orquestração mais rica
 - MCP para integração com ferramentas externas
-- Autenticação e autorização
 - Dashboard administrativo
 - Banco vetorial para RAG semântico
 - Observabilidade avançada com métricas e tracing ampliado
@@ -471,6 +548,8 @@ Essas funcionalidades não estão implementadas no estado atual do projeto.
 
 ---
 
-## 17. Licença
+## 20. Autor e créditos
 
-Todo o projeto foi desenvolvido por Ronald Damasio
+O projeto foi desenvolvido por Ronald Damasio como solução para um desafio técnico de Engenheiro de Soluções de IA.
+
+Os créditos de implementação e manutenção pertencem ao autor do repositório.
