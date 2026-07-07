@@ -298,6 +298,7 @@ A documentação Swagger fica em `http://127.0.0.1:8000/docs`.
 | `DB_ECHO` | Habilita logs SQL do SQLAlchemy | `false` |
 | `DB_POOL_SIZE` | Tamanho base do pool de conexões | `5` |
 | `DB_MAX_OVERFLOW` | Número máximo de conexões extras no pool | `10` |
+| `ADMIN_API_KEY` | Chave usada para autenticar os endpoints administrativos de escrita | `admin-...` |
 | `OPENAI_API_KEY` | Chave da OpenAI usada pelo `ChatOpenAI` | `sk-...` |
 | `LLM_MODEL` | Nome do modelo padrão | `gpt-5.4-mini` |
 | `LLM_TEMPERATURE` | Temperatura padrão do LLM | `0` |
@@ -312,6 +313,7 @@ A documentação Swagger fica em `http://127.0.0.1:8000/docs`.
 ### Observações
 
 - O arquivo `.env` é carregado na inicialização.
+- `ADMIN_API_KEY` é obrigatória para os endpoints administrativos de escrita e deve ser enviada no header `X-ADMIN-KEY`.
 - `TAVILY_API_KEY` é necessário para criação/uso de fontes do tipo `TAVILY_EXTRACT`.
 - `OPENAI_API_KEY` é necessário para geração real de respostas pelo LLM.
 
@@ -343,20 +345,20 @@ Não há configuração de cobertura dedicada no repositório atual.
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `POST` | `/api/v1/tutors` | Cria um tutor |
+| `POST` | `/api/v1/tutors` | Cria um tutor. Requer `X-ADMIN-KEY`. |
 | `GET` | `/api/v1/tutors` | Lista tutores |
 | `GET` | `/api/v1/tutors/{tutor_id}` | Busca um tutor por ID |
-| `PATCH` | `/api/v1/tutors/{tutor_id}` | Atualiza um tutor |
-| `DELETE` | `/api/v1/tutors/{tutor_id}` | Inativa um tutor |
+| `PATCH` | `/api/v1/tutors/{tutor_id}` | Atualiza um tutor. Requer `X-ADMIN-KEY`. |
+| `DELETE` | `/api/v1/tutors/{tutor_id}` | Inativa um tutor. Requer `X-ADMIN-KEY`. |
 
 ### Knowledge Source
 
 | Método | Endpoint | Descrição |
 |---|---|---|
-| `POST` | `/api/v1/tutors/{tutor_id}/knowledge-sources` | Cria uma fonte de conhecimento para um tutor |
+| `POST` | `/api/v1/tutors/{tutor_id}/knowledge-sources` | Cria uma fonte de conhecimento para um tutor. Requer `X-ADMIN-KEY`. |
 | `GET` | `/api/v1/tutors/{tutor_id}/knowledge-sources` | Lista as fontes de um tutor |
-| `PATCH` | `/api/v1/knowledge-sources/{knowledge_source_id}` | Atualiza uma fonte de conhecimento |
-| `DELETE` | `/api/v1/knowledge-sources/{knowledge_source_id}` | Remove uma fonte de conhecimento |
+| `PATCH` | `/api/v1/knowledge-sources/{knowledge_source_id}` | Atualiza uma fonte de conhecimento. Requer `X-ADMIN-KEY`. |
+| `DELETE` | `/api/v1/knowledge-sources/{knowledge_source_id}` | Remove uma fonte de conhecimento. Requer `X-ADMIN-KEY`. |
 
 ### Chat
 
