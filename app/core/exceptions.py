@@ -19,6 +19,14 @@ class TutorNotFoundError(ResourceNotFoundError):
         self.tutor_id = tutor_id
 
 
+class EmbedTokenNotFoundError(ResourceNotFoundError):
+    """Raised when an embed token cannot be resolved to a tutor."""
+
+    def __init__(self, embed_token: object) -> None:
+        super().__init__(f"Embed token not found: {embed_token}")
+        self.embed_token = embed_token
+
+
 class KnowledgeSourceNotFoundError(ResourceNotFoundError):
     """Raised when a knowledge source cannot be found."""
 
