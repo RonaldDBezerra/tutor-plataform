@@ -28,6 +28,7 @@ def make_timestamp() -> datetime:
 def make_tutor(
     tutor_id: UUID | None = None,
     *,
+    embed_token: str | None = None,
     name: str = "Tutor Alpha",
     description: str | None = "Description",
     system_prompt: str = "System prompt",
@@ -36,6 +37,7 @@ def make_tutor(
 ):
     return SimpleNamespace(
         id=tutor_id or uuid4(),
+        embed_token=embed_token or uuid4().hex,
         name=name,
         description=description,
         system_prompt=system_prompt,
@@ -107,6 +109,9 @@ class FakeTutorService:
 
     async def get_by_id(self, tutor_id: UUID):
         return self.tutors.get(tutor_id)
+
+    async def get_by_embed_token(self, embed_token: str):
+        return next((tutor for tutor in self.tutors.values() if tutor.embed_token == embed_token), None)
 
     async def update(self, tutor_id: UUID, *, name: str | None = None, description: str | None = None, system_prompt: str | None = None, status: TutorStatus | None = None):
         tutor = self.tutors[tutor_id]

@@ -13,6 +13,7 @@ def test_chat_flow(client, fake_services):
         },
     )
     tutor_id = tutor_response.json()["id"]
+    embed_token = tutor_response.json()["embed_token"]
 
     client.post(
         f"/api/v1/tutors/{tutor_id}/knowledge-sources",
@@ -59,7 +60,7 @@ def test_chat_flow(client, fake_services):
     response = client.post(
         "/api/v1/embed/chat",
         json={
-            "tutor_id": tutor_id,
+            "embed_token": embed_token,
             "conversation_id": second_payload["conversation_id"],
             "question": "And now?",
         },
@@ -67,3 +68,16 @@ def test_chat_flow(client, fake_services):
 
     assert response.status_code == 200
     assert response.json()["conversation_id"] == second_payload["conversation_id"]
+
+
+def test_embed_chat_rejects_unknown_token(client):
+    response = client.post(
+        "/api/v1/embed/chat",
+        json={
+            "embed_token": "missing-token",
+            "question": "Hello?",
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["error"] == "embed_token_not_found"

@@ -19,6 +19,7 @@ def test_tutor_crud(client, fake_services, admin_headers):
     assert response.status_code == 201
     tutor = response.json()
     tutor_id = UUID(tutor["id"])
+    UUID(hex=tutor["embed_token"])
 
     response = client.get("/api/v1/tutors")
     assert response.status_code == 200
