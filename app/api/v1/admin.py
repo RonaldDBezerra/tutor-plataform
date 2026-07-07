@@ -16,14 +16,23 @@ from app.api.schemas import (
     TutorUpdateRequest,
 )
 from app.core.exceptions import KnowledgeSourceNotFoundError, TutorNotFoundError
+from app.core.security import require_admin_api_key
 from app.models.enums import TutorStatus
 from app.services.knowledge_service import KnowledgeService
 from app.services.tutor_service import TutorService
 
 router = APIRouter(tags=["admin"])
+protected_router = APIRouter(tags=["admin"], dependencies=[Depends(require_admin_api_key)])
+
+ADMIN_AUTH_DESCRIPTION = "Requires the X-ADMIN-KEY header with a valid admin API key."
 
 
-@router.post("/tutors", response_model=TutorResponse, status_code=status.HTTP_201_CREATED)
+@protected_router.post(
+    "/tutors",
+    response_model=TutorResponse,
+    status_code=status.HTTP_201_CREATED,
+    description=ADMIN_AUTH_DESCRIPTION,
+)
 async def create_tutor(
     request: TutorCreateRequest,
     tutor_service: TutorService = Depends(get_tutor_service),
@@ -57,7 +66,11 @@ async def get_tutor(
     return TutorResponse.model_validate(tutor)
 
 
-@router.patch("/tutors/{tutor_id}", response_model=TutorResponse)
+@protected_router.patch(
+    "/tutors/{tutor_id}",
+    response_model=TutorResponse,
+    description=ADMIN_AUTH_DESCRIPTION,
+)
 async def update_tutor(
     tutor_id: UUID,
     request: TutorUpdateRequest,
@@ -73,7 +86,11 @@ async def update_tutor(
     return TutorResponse.model_validate(tutor)
 
 
-@router.delete("/tutors/{tutor_id}", status_code=status.HTTP_204_NO_CONTENT)
+@protected_router.delete(
+    "/tutors/{tutor_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description=ADMIN_AUTH_DESCRIPTION,
+)
 async def delete_tutor(
     tutor_id: UUID,
     tutor_service: TutorService = Depends(get_tutor_service),
@@ -82,10 +99,11 @@ async def delete_tutor(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post(
+@protected_router.post(
     "/tutors/{tutor_id}/knowledge-sources",
     response_model=KnowledgeSourceResponse,
     status_code=status.HTTP_201_CREATED,
+    description=ADMIN_AUTH_DESCRIPTION,
 )
 async def create_knowledge_source(
     tutor_id: UUID,
@@ -112,7 +130,11 @@ async def list_knowledge_sources(
     return [KnowledgeSourceResponse.model_validate(item) for item in knowledge_sources]
 
 
-@router.patch("/knowledge-sources/{knowledge_source_id}", response_model=KnowledgeSourceResponse)
+@protected_router.patch(
+    "/knowledge-sources/{knowledge_source_id}",
+    response_model=KnowledgeSourceResponse,
+    description=ADMIN_AUTH_DESCRIPTION,
+)
 async def update_knowledge_source(
     knowledge_source_id: UUID,
     request: KnowledgeSourceUpdateRequest,
@@ -129,10 +151,17 @@ async def update_knowledge_source(
     return KnowledgeSourceResponse.model_validate(knowledge_source)
 
 
-@router.delete("/knowledge-sources/{knowledge_source_id}", status_code=status.HTTP_204_NO_CONTENT)
+@protected_router.delete(
+    "/knowledge-sources/{knowledge_source_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description=ADMIN_AUTH_DESCRIPTION,
+)
 async def delete_knowledge_source(
     knowledge_source_id: UUID,
     knowledge_service: KnowledgeService = Depends(get_knowledge_service),
 ) -> Response:
     await knowledge_service.delete(knowledge_source_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+router.include_router(protected_router)
