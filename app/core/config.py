@@ -5,13 +5,12 @@ This is the single source of truth for runtime configuration values.
 No business logic should live here — only settings declaration and loading.
 """
 
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
 
 from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
@@ -43,13 +42,21 @@ class Settings(BaseSettings):
     )
 
     # --- AI / LangChain ---
-    ADMIN_API_KEY: str | None = Field(default=None, description="Admin API key required for protected write endpoints")
+    ADMIN_API_KEY: str | None = Field(
+        default=None, description="Admin API key required for protected write endpoints"
+    )
     OPENAI_API_KEY: str | None = Field(default=None, description="OpenAI API key used by LangChain")
     LLM_MODEL: str = Field(default="gpt-5.4-mini", description="Default LLM model name")
     LLM_TEMPERATURE: float = Field(default=0.0, description="Default model temperature")
-    TAVILY_API_KEY: str | None = Field(default=None, description="Tavily API key used by the Extract provider")
-    TAVILY_API_BASE_URL: str | None = Field(default=None, description="Optional Tavily API base URL override")
-    TAVILY_TIMEOUT_SECONDS: float = Field(default=30.0, description="Timeout for Tavily provider operations")
+    TAVILY_API_KEY: str | None = Field(
+        default=None, description="Tavily API key used by the Extract provider"
+    )
+    TAVILY_API_BASE_URL: str | None = Field(
+        default=None, description="Optional Tavily API base URL override"
+    )
+    TAVILY_TIMEOUT_SECONDS: float = Field(
+        default=30.0, description="Timeout for Tavily provider operations"
+    )
     LANGSMITH_TRACING: bool = Field(default=False, description="Enable LangSmith tracing")
     LANGSMITH_ENDPOINT: str = Field(
         default="https://api.smith.langchain.com",
@@ -60,7 +67,9 @@ class Settings(BaseSettings):
 
     DB_ECHO: bool = Field(default=False, description="Log all SQL statements emitted by SQLAlchemy")
     DB_POOL_SIZE: int = Field(default=5, description="Base size of the async connection pool")
-    DB_MAX_OVERFLOW: int = Field(default=10, description="Extra connections allowed beyond DB_POOL_SIZE")
+    DB_MAX_OVERFLOW: int = Field(
+        default=10, description="Extra connections allowed beyond DB_POOL_SIZE"
+    )
 
 
 @lru_cache

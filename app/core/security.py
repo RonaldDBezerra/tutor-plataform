@@ -7,7 +7,6 @@ from fastapi.security import APIKeyHeader
 
 from app.core.config import settings
 
-
 admin_api_key_header = APIKeyHeader(
     name="X-ADMIN-KEY",
     auto_error=False,
