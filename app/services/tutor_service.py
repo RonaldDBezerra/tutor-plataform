@@ -37,6 +37,10 @@ class TutorService:
         async with self.uow:
             return await self.uow.tutors.get_by_id(tutor_id)
 
+    async def get_by_embed_token(self, embed_token: str) -> Tutor | None:
+        async with self.uow:
+            return await self.uow.tutors.get_by_embed_token(embed_token)
+
     async def list(self, *, status: TutorStatus | None = None) -> list[Tutor]:
         async with self.uow:
             tutors = await self.uow.tutors.list(status=status)
