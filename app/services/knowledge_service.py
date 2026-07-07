@@ -5,8 +5,8 @@ from __future__ import annotations
 import uuid
 
 from app.core.exceptions import KnowledgeSourceNotFoundError, TutorNotFoundError
-from app.knowledge.factory import KnowledgeProviderFactory
 from app.db.uow import UnitOfWork
+from app.knowledge.factory import KnowledgeProviderFactory
 from app.models.enums import ProviderType
 from app.models.knowledge_source import KnowledgeSource
 
@@ -76,7 +76,9 @@ class KnowledgeService:
 
             effective_provider_type = provider_type or knowledge_source.provider_type
             effective_source_url = source_url or knowledge_source.source_url
-            effective_configuration = configuration if configuration is not None else knowledge_source.configuration
+            effective_configuration = (
+                configuration if configuration is not None else knowledge_source.configuration
+            )
 
             provider = KnowledgeProviderFactory.create(effective_provider_type)
             await provider.validate(effective_source_url, configuration=effective_configuration)
