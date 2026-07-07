@@ -2,17 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from app.knowledge.exceptions import (
-    InvalidKnowledgeSourceException,
-    ProviderNotFoundException,
-    ProviderNotImplementedException,
-)
 from app.core.exceptions import (
     ApplicationError,
     ConversationNotFoundError,
@@ -20,6 +13,11 @@ from app.core.exceptions import (
     KnowledgeSourceNotFoundError,
     ResourceNotFoundError,
     TutorNotFoundError,
+)
+from app.knowledge.exceptions import (
+    InvalidKnowledgeSourceException,
+    ProviderNotFoundException,
+    ProviderNotImplementedException,
 )
 
 

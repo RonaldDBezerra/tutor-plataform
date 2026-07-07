@@ -8,7 +8,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import MessageRole, ProviderType, TutorStatus
+from app.models.enums import ProviderType, TutorStatus
 
 
 class TutorBaseSchema(BaseModel):
@@ -84,8 +84,12 @@ class ChatRequest(BaseModel):
 
 
 class EmbedChatRequest(BaseModel):
-    embed_token: str = Field(..., min_length=1, description="Public embed token associated with the tutor.")
-    conversation_id: str | None = Field(default=None, description="Optional conversation identifier to resume a chat session.")
+    embed_token: str = Field(
+        ..., min_length=1, description="Public embed token associated with the tutor."
+    )
+    conversation_id: str | None = Field(
+        default=None, description="Optional conversation identifier to resume a chat session."
+    )
     question: str = Field(..., min_length=1, description="User question to send to the tutor.")
 
 
