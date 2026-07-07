@@ -96,8 +96,12 @@ class FakeTutorService:
     def __init__(self) -> None:
         self.tutors: dict[UUID, SimpleNamespace] = {}
 
-    async def create(self, *, name: str, description: str | None, system_prompt: str, status: TutorStatus):
-        tutor = make_tutor(name=name, description=description, system_prompt=system_prompt, status=status)
+    async def create(
+        self, *, name: str, description: str | None, system_prompt: str, status: TutorStatus
+    ):
+        tutor = make_tutor(
+            name=name, description=description, system_prompt=system_prompt, status=status
+        )
         self.tutors[tutor.id] = tutor
         return tutor
 
@@ -111,9 +115,19 @@ class FakeTutorService:
         return self.tutors.get(tutor_id)
 
     async def get_by_embed_token(self, embed_token: str):
-        return next((tutor for tutor in self.tutors.values() if tutor.embed_token == embed_token), None)
+        return next(
+            (tutor for tutor in self.tutors.values() if tutor.embed_token == embed_token), None
+        )
 
-    async def update(self, tutor_id: UUID, *, name: str | None = None, description: str | None = None, system_prompt: str | None = None, status: TutorStatus | None = None):
+    async def update(
+        self,
+        tutor_id: UUID,
+        *,
+        name: str | None = None,
+        description: str | None = None,
+        system_prompt: str | None = None,
+        status: TutorStatus | None = None,
+    ):
         tutor = self.tutors[tutor_id]
         if name is not None:
             tutor.name = name
@@ -139,7 +153,16 @@ class FakeKnowledgeService:
         self.tutor_service = tutor_service
         self.sources: dict[UUID, SimpleNamespace] = {}
 
-    async def create(self, *, tutor_id: UUID, provider_type: ProviderType, source_name: str, source_url: str, configuration: dict[str, object], enabled: bool):
+    async def create(
+        self,
+        *,
+        tutor_id: UUID,
+        provider_type: ProviderType,
+        source_name: str,
+        source_url: str,
+        configuration: dict[str, object],
+        enabled: bool,
+    ):
         source = make_knowledge_source(
             tutor_id=tutor_id,
             provider_type=provider_type,
@@ -155,7 +178,16 @@ class FakeKnowledgeService:
     async def list_by_tutor(self, tutor_id: UUID):
         return [source for source in self.sources.values() if source.tutor_id == tutor_id]
 
-    async def update(self, knowledge_source_id: UUID, *, provider_type: ProviderType | None = None, source_name: str | None = None, source_url: str | None = None, configuration: dict[str, object] | None = None, enabled: bool | None = None):
+    async def update(
+        self,
+        knowledge_source_id: UUID,
+        *,
+        provider_type: ProviderType | None = None,
+        source_name: str | None = None,
+        source_url: str | None = None,
+        configuration: dict[str, object] | None = None,
+        enabled: bool | None = None,
+    ):
         source = self.sources[knowledge_source_id]
         if provider_type is not None:
             source.provider_type = provider_type
@@ -196,13 +228,17 @@ class FakeChatService:
         return list(self.messages_by_conversation.get(conversation_id, []))
 
     async def save_user_message(self, *, conversation_id: UUID, content: str):
-        message = make_message(conversation_id=conversation_id, role=MessageRole.USER, content=content)
+        message = make_message(
+            conversation_id=conversation_id, role=MessageRole.USER, content=content
+        )
         self.messages.append(message)
         self.messages_by_conversation.setdefault(conversation_id, []).append(message)
         return message
 
     async def save_assistant_message(self, *, conversation_id: UUID, content: str):
-        message = make_message(conversation_id=conversation_id, role=MessageRole.ASSISTANT, content=content)
+        message = make_message(
+            conversation_id=conversation_id, role=MessageRole.ASSISTANT, content=content
+        )
         self.messages.append(message)
         self.messages_by_conversation.setdefault(conversation_id, []).append(message)
         return message
@@ -213,7 +249,9 @@ class FakeTutorAgent:
         self.calls: list[dict[str, object]] = []
 
     async def run(self, tutor, question: str, history=None) -> str:
-        self.calls.append({"tutor_id": tutor.id, "question": question, "history": list(history or [])})
+        self.calls.append(
+            {"tutor_id": tutor.id, "question": question, "history": list(history or [])}
+        )
         return f"Answer for {tutor.name}: {question}"
 
 

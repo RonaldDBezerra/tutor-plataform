@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 import asyncio
-from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
 
-from app.core.exceptions import TutorNotFoundError
 from app.knowledge.exceptions import InvalidKnowledgeSourceException
-from app.knowledge.models import KnowledgeResult
+from app.knowledge.providers.tavily_provider import TavilyProvider
 from app.models.enums import ProviderType, TutorStatus
 from app.models.knowledge_source import KnowledgeSource
 from app.models.tutor import Tutor
 from app.services.knowledge_service import KnowledgeService
-from app.knowledge.providers.tavily_provider import TavilyProvider
 
 
 class FakeTutorRepository:
@@ -114,7 +111,10 @@ async def test_knowledge_source_create_validates_before_persisting(monkeypatch):
     service = KnowledgeService(FakeUow(tutor))
     provider = SuccessfulProvider()
 
-    monkeypatch.setattr("app.services.knowledge_service.KnowledgeProviderFactory.create", lambda provider_type: provider)
+    monkeypatch.setattr(
+        "app.services.knowledge_service.KnowledgeProviderFactory.create",
+        lambda provider_type: provider,
+    )
 
     result = await service.create(
         tutor_id=uuid4(),
@@ -136,7 +136,10 @@ async def test_knowledge_source_create_rejects_invalid_source(monkeypatch):
     tutor = Tutor(name="Tutor", description=None, system_prompt="Prompt", status=TutorStatus.ACTIVE)
     service = KnowledgeService(FakeUow(tutor))
 
-    monkeypatch.setattr("app.services.knowledge_service.KnowledgeProviderFactory.create", lambda provider_type: InvalidProvider())
+    monkeypatch.setattr(
+        "app.services.knowledge_service.KnowledgeProviderFactory.create",
+        lambda provider_type: InvalidProvider(),
+    )
 
     with pytest.raises(InvalidKnowledgeSourceException):
         await service.create(
