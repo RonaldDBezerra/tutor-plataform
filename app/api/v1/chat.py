@@ -28,17 +28,15 @@ def _build_sources(tutor: Tutor | None) -> list[ConversationSourceSchema]:
 
 
 @traceable(name="chat_flow")
-async def run_chat_flow(
+async def run_chat_flow_for_tutor(
     *,
+    tutor: Tutor,
     chat_service: ChatService,
     tutor_agent: TutorAgent,
-    tutor_id: uuid.UUID,
     question: str,
     conversation_id: str | None = None,
 ) -> ChatResponse:
-    tutor = await chat_service.get_tutor(tutor_id)
-    if tutor is None:
-        raise TutorNotFoundError(tutor_id)
+    tutor_id = tutor.id
 
     session_id = conversation_id or str(uuid.uuid4())
     conversation = await chat_service.get_or_create_conversation(
@@ -64,6 +62,26 @@ async def run_chat_flow(
         conversation_id=conversation.session_id,
         answer=answer,
         sources=_build_sources(tutor),
+    )
+
+
+async def run_chat_flow(
+    *,
+    chat_service: ChatService,
+    tutor_agent: TutorAgent,
+    tutor_id: uuid.UUID,
+    question: str,
+    conversation_id: str | None = None,
+) -> ChatResponse:
+    tutor = await chat_service.get_tutor(tutor_id)
+    if tutor is None:
+        raise TutorNotFoundError(tutor_id)
+    return await run_chat_flow_for_tutor(
+        tutor=tutor,
+        chat_service=chat_service,
+        tutor_agent=tutor_agent,
+        question=question,
+        conversation_id=conversation_id,
     )
 
 

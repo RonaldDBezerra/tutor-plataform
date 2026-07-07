@@ -7,9 +7,9 @@ import uuid
 from fastapi import APIRouter, Depends
 
 from app.api.dependencies import get_chat_service, get_tutor_agent, get_tutor_service
-from app.api.schemas import ChatRequest, ChatResponse, EmbedConfigResponse
-from app.api.v1.chat import run_chat_flow
-from app.core.exceptions import TutorNotFoundError
+from app.api.schemas import ChatResponse, EmbedChatRequest, EmbedConfigResponse
+from app.api.v1.chat import run_chat_flow_for_tutor
+from app.core.exceptions import EmbedTokenNotFoundError, TutorNotFoundError
 from app.services.chat_service import ChatService
 from app.services.tutor_service import TutorService
 from app.agents.tutor_agent import TutorAgent
@@ -35,16 +35,25 @@ async def get_embed_config(
     )
 
 
-@router.post("/embed/chat", response_model=ChatResponse)
+@router.post(
+    "/embed/chat",
+    response_model=ChatResponse,
+    description="Executes the public embed chat flow using an embed_token instead of tutor_id.",
+)
 async def embed_chat(
-    request: ChatRequest,
+    request: EmbedChatRequest,
+    tutor_service: TutorService = Depends(get_tutor_service),
     chat_service: ChatService = Depends(get_chat_service),
     tutor_agent: TutorAgent = Depends(get_tutor_agent),
 ) -> ChatResponse:
-    return await run_chat_flow(
+    tutor = await tutor_service.get_by_embed_token(request.embed_token)
+    if tutor is None:
+        raise EmbedTokenNotFoundError(request.embed_token)
+
+    return await run_chat_flow_for_tutor(
+        tutor=tutor,
         chat_service=chat_service,
         tutor_agent=tutor_agent,
-        tutor_id=request.tutor_id,
         question=request.question,
         conversation_id=request.conversation_id,
     )
