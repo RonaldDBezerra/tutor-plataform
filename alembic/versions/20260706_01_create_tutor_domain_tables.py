@@ -1,16 +1,16 @@
 """Create tutor domain tables.
 
 Revision ID: 202607060001
-Revises: 
+Revises:
 Create Date: 2026-07-06 00:00:00.000000
 """
 
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "202607060001"
