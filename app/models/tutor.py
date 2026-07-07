@@ -12,12 +12,22 @@ from app.db.base import Base
 from app.models.enums import TutorStatus
 
 
+def generate_embed_token() -> str:
+    return uuid.uuid4().hex
+
+
 class Tutor(Base):
     __tablename__ = "tutors"
-
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True,
         default=uuid.uuid4,
+    )
+    embed_token: Mapped[str] = mapped_column(
+        String(length=32),
+        nullable=False,
+        unique=True,
+        index=True,
+        default=generate_embed_token,
     )
     name: Mapped[str] = mapped_column(String(length=255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text(), nullable=True)
