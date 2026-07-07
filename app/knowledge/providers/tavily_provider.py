@@ -28,7 +28,9 @@ class TavilyProvider(KnowledgeProvider):
     ) -> None:
         self.api_key = api_key or settings.TAVILY_API_KEY
         self.api_base_url = api_base_url or settings.TAVILY_API_BASE_URL
-        self.timeout_seconds = timeout_seconds if timeout_seconds is not None else settings.TAVILY_TIMEOUT_SECONDS
+        self.timeout_seconds = (
+            timeout_seconds if timeout_seconds is not None else settings.TAVILY_TIMEOUT_SECONDS
+        )
 
     async def validate(self, source: str, configuration: dict | None = None) -> None:
         await self._extract(source=source, configuration=configuration)
@@ -43,7 +45,9 @@ class TavilyProvider(KnowledgeProvider):
         results = payload.get("results", [])
 
         if not results:
-            raise InvalidKnowledgeSourceException(f"Tavily provider returned no extracted content for {source!r}")
+            raise InvalidKnowledgeSourceException(
+                f"Tavily provider returned no extracted content for {source!r}"
+            )
 
         content_blocks = [
             result.get("raw_content", "")
@@ -52,7 +56,9 @@ class TavilyProvider(KnowledgeProvider):
         ]
         content = "\n\n".join(content_blocks).strip()
         if not content:
-            raise InvalidKnowledgeSourceException(f"Tavily provider returned empty content for {source!r}")
+            raise InvalidKnowledgeSourceException(
+                f"Tavily provider returned empty content for {source!r}"
+            )
 
         metadata = {
             "question": question,
@@ -115,13 +121,18 @@ class TavilyProvider(KnowledgeProvider):
         except asyncio.TimeoutError as exc:
             logger.exception("Tavily provider timed out for source=%s", source)
             raise InvalidKnowledgeSourceException(
-                f"Tavily provider timed out after {self.timeout_seconds} seconds for source {source!r}"
+                f"Tavily provider timed out after {self.timeout_seconds} seconds "
+                f"for source {source!r}"
             ) from exc
         except Exception as exc:
             logger.exception("Tavily provider failed for source=%s", source)
-            raise InvalidKnowledgeSourceException(f"Tavily provider failed for source {source!r}: {exc}") from exc
+            raise InvalidKnowledgeSourceException(
+                f"Tavily provider failed for source {source!r}: {exc}"
+            ) from exc
 
         if not isinstance(raw_results, Mapping):
-            raise InvalidKnowledgeSourceException(f"Tavily provider returned an invalid payload for {source!r}")
+            raise InvalidKnowledgeSourceException(
+                f"Tavily provider returned an invalid payload for {source!r}"
+            )
 
         return dict(raw_results)

@@ -66,4 +66,6 @@ class JsonProvider(KnowledgeProvider):
         try:
             return float(timeout)
         except (TypeError, ValueError) as exc:
-            raise InvalidKnowledgeSourceException("Invalid timeout configuration for JSON provider") from exc
+            raise InvalidKnowledgeSourceException(
+                "Invalid timeout configuration for JSON provider"
+            ) from exc

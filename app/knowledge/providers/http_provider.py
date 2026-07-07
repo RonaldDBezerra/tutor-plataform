@@ -65,7 +65,9 @@ class HttpProvider(KnowledgeProvider):
         try:
             return float(timeout)
         except (TypeError, ValueError) as exc:
-            raise InvalidKnowledgeSourceException("Invalid timeout configuration for HTTP provider") from exc
+            raise InvalidKnowledgeSourceException(
+                "Invalid timeout configuration for HTTP provider"
+            ) from exc
 
     def _extract_text(self, response: httpx.Response) -> str:
         content_type = response.headers.get("content-type", "")
