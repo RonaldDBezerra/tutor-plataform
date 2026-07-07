@@ -15,9 +15,8 @@ from app.api.schemas import (
     TutorResponse,
     TutorUpdateRequest,
 )
-from app.core.exceptions import KnowledgeSourceNotFoundError, TutorNotFoundError
+from app.core.exceptions import TutorNotFoundError
 from app.core.security import require_admin_api_key
-from app.models.enums import TutorStatus
 from app.services.knowledge_service import KnowledgeService
 from app.services.tutor_service import TutorService
 

@@ -6,13 +6,13 @@ import uuid
 
 from fastapi import APIRouter, Depends
 
+from app.agents.tutor_agent import TutorAgent
 from app.api.dependencies import get_chat_service, get_tutor_agent, get_tutor_service
 from app.api.schemas import ChatResponse, EmbedChatRequest, EmbedConfigResponse
 from app.api.v1.chat import run_chat_flow_for_tutor
 from app.core.exceptions import EmbedTokenNotFoundError, TutorNotFoundError
 from app.services.chat_service import ChatService
 from app.services.tutor_service import TutorService
-from app.agents.tutor_agent import TutorAgent
 
 router = APIRouter(tags=["embed"])
 

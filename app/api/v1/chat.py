@@ -2,20 +2,18 @@
 
 from __future__ import annotations
 
-import logging
 import uuid
 
 from fastapi import APIRouter, Depends
 from langsmith import traceable
 
+from app.agents.tutor_agent import TutorAgent
 from app.api.dependencies import get_chat_service, get_tutor_agent
 from app.api.schemas import ChatRequest, ChatResponse, ConversationSourceSchema
 from app.core.exceptions import TutorNotFoundError
 from app.models.tutor import Tutor
 from app.services.chat_service import ChatService
-from app.agents.tutor_agent import TutorAgent
 
-logger = logging.getLogger(__name__)
 router = APIRouter(tags=["chat"])
 
 
