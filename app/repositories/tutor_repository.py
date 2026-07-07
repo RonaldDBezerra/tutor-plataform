@@ -17,18 +17,26 @@ class TutorRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
+    def _base_statement(self) -> Select[Tutor]:
+        return select(Tutor).options(selectinload(Tutor.knowledge_sources))
+
     async def create(self, tutor: Tutor) -> Tutor:
         self.session.add(tutor)
         await self.session.flush()
         return tutor
 
     async def get_by_id(self, tutor_id: uuid.UUID) -> Tutor | None:
-        statement: Select[Tutor] = select(Tutor).options(selectinload(Tutor.knowledge_sources)).where(Tutor.id == tutor_id)
+        statement = self._base_statement().where(Tutor.id == tutor_id)
+        result = await self.session.execute(statement)
+        return result.scalar_one_or_none()
+
+    async def get_by_embed_token(self, embed_token: str) -> Tutor | None:
+        statement = self._base_statement().where(Tutor.embed_token == embed_token)
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
     async def list(self, *, status: TutorStatus | None = None) -> Sequence[Tutor]:
-        statement: Select[Tutor] = select(Tutor).options(selectinload(Tutor.knowledge_sources))
+        statement = self._base_statement()
         if status is not None:
             statement = statement.where(Tutor.status == status)
         statement = statement.order_by(Tutor.created_at.desc())
