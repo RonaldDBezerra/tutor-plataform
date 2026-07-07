@@ -30,9 +30,9 @@ Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL
 
 ## 2. Demonstração
 
-- URL da aplicação (Render): TODO
-- URL da documentação Swagger: TODO
-- GIF ou imagem da aplicação: TODO
+- URL da aplicação (Render): não publicada neste repositório
+- URL da documentação Swagger: disponível localmente em `/docs`
+- GIF ou imagem da aplicação: não incluído
 
 > Observação: o repositório atual não contém Dockerfile nem docker-compose. A execução local é feita diretamente com UV.
 
