@@ -5,9 +5,10 @@ from uuid import UUID
 from app.models.enums import ProviderType, TutorStatus
 
 
-def test_tutor_crud(client, fake_services):
+def test_tutor_crud(client, fake_services, admin_headers):
     response = client.post(
         "/api/v1/tutors",
+        headers=admin_headers,
         json={
             "name": "Tutor One",
             "description": "A helper tutor",
@@ -29,20 +30,22 @@ def test_tutor_crud(client, fake_services):
 
     response = client.patch(
         f"/api/v1/tutors/{tutor_id}",
+        headers=admin_headers,
         json={"name": "Tutor Two", "status": "INACTIVE"},
     )
     assert response.status_code == 200
     assert response.json()["name"] == "Tutor Two"
     assert response.json()["status"] == "INACTIVE"
 
-    response = client.delete(f"/api/v1/tutors/{tutor_id}")
+    response = client.delete(f"/api/v1/tutors/{tutor_id}", headers=admin_headers)
     assert response.status_code == 204
     assert fake_services["tutor_service"].tutors[tutor_id].status == TutorStatus.INACTIVE
 
 
-def test_knowledge_source_crud(client, fake_services):
+def test_knowledge_source_crud(client, fake_services, admin_headers):
     tutor_response = client.post(
         "/api/v1/tutors",
+        headers=admin_headers,
         json={
             "name": "Tutor One",
             "description": None,
@@ -54,6 +57,7 @@ def test_knowledge_source_crud(client, fake_services):
 
     response = client.post(
         f"/api/v1/tutors/{tutor_id}/knowledge-sources",
+        headers=admin_headers,
         json={
             "provider_type": "HTTP_TEXT",
             "source_name": "Docs",
@@ -72,19 +76,52 @@ def test_knowledge_source_crud(client, fake_services):
 
     response = client.patch(
         f"/api/v1/knowledge-sources/{source_id}",
+        headers=admin_headers,
         json={"source_name": "Updated Docs", "provider_type": "JSON"},
     )
     assert response.status_code == 200
     assert response.json()["source_name"] == "Updated Docs"
     assert response.json()["provider_type"] == ProviderType.JSON.value
 
-    response = client.delete(f"/api/v1/knowledge-sources/{source_id}")
+    response = client.delete(f"/api/v1/knowledge-sources/{source_id}", headers=admin_headers)
     assert response.status_code == 204
 
 
-def test_embed_config(client):
+def test_admin_write_requires_api_key(client):
+    response = client.post(
+        "/api/v1/tutors",
+        json={
+            "name": "Tutor One",
+            "description": "A helper tutor",
+            "system_prompt": "You are helpful.",
+            "status": "ACTIVE",
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or missing admin API key"
+
+
+def test_admin_write_rejects_invalid_api_key(client):
+    response = client.post(
+        "/api/v1/tutors",
+        headers={"X-ADMIN-KEY": "invalid-key"},
+        json={
+            "name": "Tutor One",
+            "description": "A helper tutor",
+            "system_prompt": "You are helpful.",
+            "status": "ACTIVE",
+        },
+    )
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or missing admin API key"
+
+
+def test_embed_config(client, admin_headers):
     tutor_response = client.post(
         "/api/v1/tutors",
+        headers=admin_headers,
         json={
             "name": "Embed Tutor",
             "description": "Widget ready",

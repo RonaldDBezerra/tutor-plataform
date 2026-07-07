@@ -14,8 +14,11 @@ from app.api.dependencies import (
     get_tutor_agent,
     get_tutor_service,
 )
+from app.core import config as app_config
 from app.main import app
 from app.models.enums import MessageRole, ProviderType, TutorStatus
+
+TEST_ADMIN_API_KEY = "test-admin-key"
 
 
 def make_timestamp() -> datetime:
@@ -225,6 +228,9 @@ def fake_services() -> dict[str, object]:
 
 @pytest.fixture()
 def client(fake_services: dict[str, object]) -> Iterator[TestClient]:
+    previous_admin_api_key = app_config.settings.ADMIN_API_KEY
+    app_config.settings.ADMIN_API_KEY = TEST_ADMIN_API_KEY
+
     app.dependency_overrides[get_tutor_service] = lambda: fake_services["tutor_service"]
     app.dependency_overrides[get_knowledge_service] = lambda: fake_services["knowledge_service"]
     app.dependency_overrides[get_chat_service] = lambda: fake_services["chat_service"]
@@ -234,3 +240,9 @@ def client(fake_services: dict[str, object]) -> Iterator[TestClient]:
         yield test_client
 
     app.dependency_overrides.clear()
+    app_config.settings.ADMIN_API_KEY = previous_admin_api_key
+
+
+@pytest.fixture()
+def admin_headers() -> dict[str, str]:
+    return {"X-ADMIN-KEY": TEST_ADMIN_API_KEY}

@@ -4,6 +4,7 @@ from __future__ import annotations
 def test_chat_flow(client, fake_services):
     tutor_response = client.post(
         "/api/v1/tutors",
+        headers={"X-ADMIN-KEY": "test-admin-key"},
         json={
             "name": "Chat Tutor",
             "description": "Friendly",
@@ -15,6 +16,7 @@ def test_chat_flow(client, fake_services):
 
     client.post(
         f"/api/v1/tutors/{tutor_id}/knowledge-sources",
+        headers={"X-ADMIN-KEY": "test-admin-key"},
         json={
             "provider_type": "HTTP_TEXT",
             "source_name": "Docs",
