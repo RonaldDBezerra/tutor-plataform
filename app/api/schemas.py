@@ -33,6 +33,7 @@ class TutorResponse(TutorBaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    embed_token: str
     created_at: datetime
     updated_at: datetime
 
@@ -80,6 +81,12 @@ class ChatRequest(BaseModel):
     tutor_id: UUID
     conversation_id: str | None = None
     question: str = Field(..., min_length=1)
+
+
+class EmbedChatRequest(BaseModel):
+    embed_token: str = Field(..., min_length=1, description="Public embed token associated with the tutor.")
+    conversation_id: str | None = Field(default=None, description="Optional conversation identifier to resume a chat session.")
+    question: str = Field(..., min_length=1, description="User question to send to the tutor.")
 
 
 class ChatResponse(BaseModel):

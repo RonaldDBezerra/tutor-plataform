@@ -16,6 +16,7 @@ from app.knowledge.exceptions import (
 from app.core.exceptions import (
     ApplicationError,
     ConversationNotFoundError,
+    EmbedTokenNotFoundError,
     KnowledgeSourceNotFoundError,
     ResourceNotFoundError,
     TutorNotFoundError,
@@ -34,6 +35,8 @@ async def application_error_handler(_: Request, exc: ApplicationError) -> JSONRe
 
     if isinstance(exc, TutorNotFoundError):
         error_code = "tutor_not_found"
+    elif isinstance(exc, EmbedTokenNotFoundError):
+        error_code = "embed_token_not_found"
     elif isinstance(exc, KnowledgeSourceNotFoundError):
         error_code = "knowledge_source_not_found"
     elif isinstance(exc, ConversationNotFoundError):
