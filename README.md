@@ -45,7 +45,7 @@ Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL
 
 ## 2. Demonstração
 
-- URL da API em produção: não há URL pública documentada neste repositório
+- URL da API em produção: https://tutor-plataform.onrender.com
 - URL da documentação Swagger: `http://127.0.0.1:8000/docs` em ambiente local; em produção, a rota padrão permanece a mesma
 - URL do OpenAPI: `http://127.0.0.1:8000/openapi.json` em ambiente local; em produção, a rota padrão permanece a mesma
 - Frontend publicado: não há frontend publicado referenciado neste repositório
