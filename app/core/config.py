@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     )
 
     # --- AI / LangChain ---
+    ADMIN_API_KEY: str | None = Field(default=None, description="Admin API key required for protected write endpoints")
     OPENAI_API_KEY: str | None = Field(default=None, description="OpenAI API key used by LangChain")
     LLM_MODEL: str = Field(default="gpt-5.4-mini", description="Default LLM model name")
     LLM_TEMPERATURE: float = Field(default=0.0, description="Default model temperature")
