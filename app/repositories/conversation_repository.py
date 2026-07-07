@@ -21,7 +21,9 @@ class ConversationRepository:
         return conversation
 
     async def get_by_id(self, conversation_id: uuid.UUID) -> Conversation | None:
-        statement: Select[Conversation] = select(Conversation).where(Conversation.id == conversation_id)
+        statement: Select[Conversation] = select(Conversation).where(
+            Conversation.id == conversation_id
+        )
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 

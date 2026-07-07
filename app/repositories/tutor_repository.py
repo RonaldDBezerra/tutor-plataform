@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Sequence
 import uuid
+from typing import Sequence
 
 from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
