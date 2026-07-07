@@ -473,6 +473,4 @@ Essas funcionalidades não estão implementadas no estado atual do projeto.
 
 ## 17. Licença
 
-Nenhuma licença foi adicionada ao repositório atual.
-
-Se este projeto for publicado externamente, recomenda-se incluir uma licença apropriada antes da distribuição.
+Todo o projeto foi desenvolvido por Ronald Damasio
