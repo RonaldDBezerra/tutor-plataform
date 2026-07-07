@@ -4,13 +4,18 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, Enum as SAEnum, ForeignKey, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, func
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.models.enums import ProviderType
+
+if TYPE_CHECKING:
+    from app.models.tutor import Tutor
 
 
 class KnowledgeSource(Base):
@@ -46,4 +51,4 @@ class KnowledgeSource(Base):
         onupdate=func.now(),
     )
 
-    tutor: Mapped["Tutor"] = relationship(back_populates="knowledge_sources")
+    tutor: Mapped[Tutor] = relationship(back_populates="knowledge_sources")

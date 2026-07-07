@@ -1,20 +1,20 @@
 """Domain enums used by SQLAlchemy models."""
 
-from enum import Enum
+from enum import StrEnum
 
 
-class TutorStatus(str, Enum):
+class TutorStatus(StrEnum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
 
 
-class ProviderType(str, Enum):
+class ProviderType(StrEnum):
     HTTP_TEXT = "HTTP_TEXT"
     JSON = "JSON"
     TAVILY_EXTRACT = "TAVILY_EXTRACT"
 
 
-class MessageRole(str, Enum):
+class MessageRole(StrEnum):
     USER = "USER"
     ASSISTANT = "ASSISTANT"
     SYSTEM = "SYSTEM"

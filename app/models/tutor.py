@@ -4,12 +4,17 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum as SAEnum, String, Text, func
+from sqlalchemy import DateTime, String, Text, func
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.models.enums import TutorStatus
+
+if TYPE_CHECKING:
+    from app.models.knowledge_source import KnowledgeSource
 
 
 def generate_embed_token() -> str:
@@ -48,7 +53,7 @@ class Tutor(Base):
         onupdate=func.now(),
     )
 
-    knowledge_sources: Mapped[list["KnowledgeSource"]] = relationship(
+    knowledge_sources: Mapped[list[KnowledgeSource]] = relationship(
         back_populates="tutor",
         cascade="all, delete-orphan",
         passive_deletes=True,

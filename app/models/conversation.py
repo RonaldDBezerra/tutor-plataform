@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.message import Message
 
 
 class Conversation(Base):
@@ -41,7 +45,7 @@ class Conversation(Base):
         onupdate=func.now(),
     )
 
-    messages: Mapped[list["Message"]] = relationship(
+    messages: Mapped[list[Message]] = relationship(
         back_populates="conversation",
         cascade="all, delete-orphan",
         passive_deletes=True,

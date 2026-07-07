@@ -4,13 +4,18 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Text, func
+from sqlalchemy import DateTime, ForeignKey, Text, func
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.models.enums import MessageRole
+
+if TYPE_CHECKING:
+    from app.models.conversation import Conversation
 
 
 class Message(Base):
@@ -37,4 +42,4 @@ class Message(Base):
         server_default=func.now(),
     )
 
-    conversation: Mapped["Conversation"] = relationship(back_populates="messages")
+    conversation: Mapped[Conversation] = relationship(back_populates="messages")
