@@ -36,11 +36,14 @@ class KnowledgeTool:
             )
             raise
         except Exception:
+            error_message = (
+                "Unexpected error while resolving knowledge "
+                f"source_id={knowledge_source.id} "
+                f"source_name={knowledge_source.source_name} "
+                f"provider_type={knowledge_source.provider_type}"
+            )
             logger.exception(
-                "Unexpected error while resolving knowledge source_id=%s source_name=%s provider_type=%s",
-                knowledge_source.id,
-                knowledge_source.source_name,
-                knowledge_source.provider_type,
+                error_message,
             )
             raise
 
