@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from app.models.message import Message
 from app.knowledge.models import KnowledgeResult
+from app.models.message import Message
 from app.models.tutor import Tutor
 
 
