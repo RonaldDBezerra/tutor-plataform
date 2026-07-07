@@ -371,7 +371,11 @@ Não há configuração de cobertura dedicada no repositório atual.
 | Método | Endpoint | Descrição |
 |---|---|---|
 | `GET` | `/api/v1/embed/{tutor_id}/config` | Retorna a configuração pública do tutor para embed |
-| `POST` | `/api/v1/embed/chat` | Executa o mesmo fluxo do chat para embed |
+| `POST` | `/api/v1/embed/chat` | Executa o mesmo fluxo do chat para embed usando `embed_token` |
+
+### Tutor público
+
+O tutor expõe `embed_token` como identificador público da integração embarcada. Esse campo é gerado automaticamente na criação do tutor, não é aceito em requests de escrita e pode ser usado pelo frontend para chamar `/api/v1/embed/chat` sem expor `tutor_id`.
 
 ---
 
