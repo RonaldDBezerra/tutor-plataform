@@ -31,7 +31,7 @@ Plataforma backend para tutores inteligentes com FastAPI, SQLAlchemy, PostgreSQL
 
 ## 2. Demonstração
 
-- URL da aplicação (Render): não publicada neste repositório
+- URL da aplicação (Render): https://tutor-plataform.onrender.com
 - URL da documentação Swagger: disponível localmente em `/docs`
 - GIF ou imagem da aplicação: não incluído
 
