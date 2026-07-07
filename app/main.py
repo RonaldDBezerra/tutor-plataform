@@ -9,7 +9,6 @@ from fastapi import FastAPI
 from app.agents.tutor_agent import TutorAgent
 from app.api.errors import register_exception_handlers
 from app.api.v1 import router as api_v1_router
-from app.core.config import settings
 from app.llm.client import LLMClient
 from app.tools.knowledge_tool import KnowledgeTool
 
